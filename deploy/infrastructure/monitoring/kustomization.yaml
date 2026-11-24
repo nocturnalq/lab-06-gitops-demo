@@ -3,3 +3,12 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - namespace.yaml
+  - vm.yaml
+  - repositories.yaml
+configMapGenerator:
+  - name: vm-values
+    files:
+      - values.yaml=vm-values.yaml
+
+configurations:
+ - kustomizeconfig.yaml
