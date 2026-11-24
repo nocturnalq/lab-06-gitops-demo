@@ -28,4 +28,4 @@ spec:
     path: deploy/clusters/kind
     interval: 1m
     # Secret с токеном GitHub: поля username и password.
-    pullSecret: flux-system
+    # pullSecret: flux-system
