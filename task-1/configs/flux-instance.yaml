@@ -1,0 +1,36 @@
+# Flux в кластере, описанный одним объектом. Flux Operator сам ставит и
+# обновляет контроллеры Flux по этому описанию, а секция sync создает
+# GitRepository и Kustomization с именем flux-system, которые синхронизируют
+# кластер с каталогом вашего репозитория на GitHub.
+# Замените <github_user> и <ник_k8s> на свои значения.
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.10.x"
+    registry: ghcr.io/fluxcd
+    artifact: oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+    - image-reflector-controller
+    - image-automation-controller
+  cluster:
+    type: kubernetes
+    size: small
+    multitenant: false
+    networkPolicy: true
+    domain: cluster.local
+  sync:
+    kind: GitRepository
+    url: https://github.com/<github_user>/notes.git
+    ref: refs/heads/master
+    path: deploy/clusters/<ник_k8s>
+    interval: 1m
+    # Secret с токеном GitHub: поля username и password.
+    pullSecret: flux-system
