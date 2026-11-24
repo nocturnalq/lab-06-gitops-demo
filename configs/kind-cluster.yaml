@@ -1,0 +1,60 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: ClusterConfiguration
+        controllerManager:
+          extraArgs:
+            - name: bind-address
+              value: "0.0.0.0"
+            - name: enable-hostpath-provisioner
+              value: "true"
+        scheduler:
+          extraArgs:
+            - name: bind-address
+              value: "0.0.0.0"
+        etcd:
+          local:
+            extraArgs:
+              - name: listen-metrics-urls
+                value: http://0.0.0.0:2381
+      - |
+        kind: KubeProxyConfiguration
+        metricsBindAddress: 0.0.0.0:10249
+    extraPortMappings:
+    # Для Hubble UI
+    - containerPort: 31200
+      hostPort: 12000
+      listenAddress: 127.0.0.1
+    # Grafana
+    - containerPort: 31300
+      hostPort: 13000
+      listenAddress: 127.0.0.1
+    # VictoriaMetrics (vmui)
+    - containerPort: 31400
+      hostPort: 14000
+      listenAddress: 127.0.0.1
+    # VictoriaLogs (vmui)
+    - containerPort: 31500
+      hostPort: 15000
+      listenAddress: 127.0.0.1
+    # VictoriaTraces (vmui)
+    - containerPort: 31600
+      hostPort: 16000
+      listenAddress: 127.0.0.1
+    # Alertmanager
+    - containerPort: 31700
+      hostPort: 17000
+      listenAddress: 127.0.0.1
+    # Шлюз gateway сервиса notes
+    - containerPort: 30080
+      hostPort: 8080
+      listenAddress: 127.0.0.1
+
+  - role: worker
+  - role: worker
+networking:
+  # эта настройка выключает стандартный куберовский CNI
+  disableDefaultCNI: true

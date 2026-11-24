@@ -1,0 +1,11 @@
+ipam:
+  mode: "kubernetes"
+
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    service:
+      type: NodePort
+      nodePort: 31200
