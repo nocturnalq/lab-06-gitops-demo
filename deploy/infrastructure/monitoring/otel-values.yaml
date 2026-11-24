@@ -1,0 +1,69 @@
+clusterName: kind
+
+crds:
+  installOtel: true
+  installPrometheus: false
+
+opentelemetry-operator:
+  enabled: true
+  admissionWebhooks:
+    certManager:
+      enabled: false
+    autoGenerateCert:
+      enabled: true
+
+collectors:
+  daemon:
+    enabled: true
+    fullnameOverride: otel
+    mode: daemonset
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+    scrape_configs_file: ""
+    presets:
+      logsCollection:
+        enabled: true
+        includeCollectorLogs: false
+      kubernetesEvents:
+        enabled: true
+      kubernetesAttributes:
+        enabled: true
+      kubeletMetrics:
+        enabled: false
+      hostMetrics:
+        enabled: false
+      clusterMetrics:
+        enabled: false
+      resourceDetection:
+        env:
+          enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    config:
+      exporters:
+        otlphttp/victoriametrics:
+          metrics_endpoint: http://vmsingle-vm.monitoring.svc:8428/opentelemetry/v1/metrics
+        otlphttp/victorialogs:
+          logs_endpoint: http://vlsingle-vm.monitoring.svc:9428/insert/opentelemetry/v1/logs
+          headers:
+            VL-Stream-Fields: k8s.namespace.name,k8s.pod.name,k8s.container.name,k8s.resource.name
+            VL-Msg-Field: _msg,object.note
+        otlphttp/victoriatraces:
+          traces_endpoint: http://vtsingle-vm.monitoring.svc:10428/insert/opentelemetry/v1/traces
+      service:
+        pipelines:
+          traces:
+            exporters:
+              - otlphttp/victoriatraces
+          metrics:
+            exporters:
+              - otlphttp/victoriametrics
+          logs:
+            exporters:
+              - otlphttp/victorialogs
