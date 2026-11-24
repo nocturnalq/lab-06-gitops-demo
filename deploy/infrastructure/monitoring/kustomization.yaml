@@ -5,10 +5,14 @@ resources:
   - namespace.yaml
   - vm.yaml
   - repositories.yaml
+  - otel.yaml
 configMapGenerator:
   - name: vm-values
     files:
       - values.yaml=vm-values.yaml
+  - name: otel-values
+    files:
+      - values.yaml=otel-values.yaml
 
 configurations:
  - kustomizeconfig.yaml
